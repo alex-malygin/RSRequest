@@ -25,10 +25,20 @@ open class Session: RSRequestProtocol {
             
             return URLSession.shared
                 .dataTaskPublisher(for: request)
-                .mapError { $0 as Error }
-                .map { $0.data }
+                .map(\.data)
                 .decode(type: T.self, decoder: JSONDecoder())
+                .mapError { error in
+                    switch error {
+                    case is URLError:
+                        return APIError.apiError(reason: error.localizedDescription)
+                    case is DecodingError:
+                        return APIError.parserError(reason: error.localizedDescription)
+                    default:
+                        return APIError.unknown
+                    }
+                }
                 .eraseToAnyPublisher()
+            
         } catch let error {
             return Fail<T, Error>(error: error)
                 .eraseToAnyPublisher()

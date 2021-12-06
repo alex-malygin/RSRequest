@@ -7,32 +7,30 @@
 
 import Foundation
 
-public enum APIError: Error {
-    
+enum APIError: Error, LocalizedError {
+    case unknown
+    case apiError(reason: String)
+    case parserError(reason: String)
+    case networkError(from: URLError)
+    case invalidServerResponse
     case invalidURL
-    case httpCode(Int)
-    case unexpectedResponse
-    case custom(String)
-    case decodable(Decodable)
-}
+    case urlRequestError
+        
 
-extension APIError: LocalizedError {
-    public var errorDescription: String? {
+    var errorDescription: String? {
         switch self {
-        case .invalidURL:           return "Не удалось собрать Адрес"
-        case .httpCode(let code):   return "Не ожидаемый HTTP код: \(code)"
-        case .unexpectedResponse:   return "Не ожидаемый ответ от сервера"
-        case .custom(let message):  return message
-        case .decodable:               return "Не ожидаемый ответ"
-        }
-    }
-    
-    public var decodable: Decodable? {
-        switch self {
-        case .decodable(let decodable):
-            return decodable
-        default:
-            return nil
+        case .unknown:
+            return "Unknown error"
+        case .apiError(let reason), .parserError(let reason):
+            return reason
+        case .networkError(let from):
+            return from.localizedDescription
+        case .invalidServerResponse:
+            return "Invalid Server Response"
+        case .invalidURL:
+            return "Invalid URL"
+        case .urlRequestError:
+            return "Error with url request"
         }
     }
 }
