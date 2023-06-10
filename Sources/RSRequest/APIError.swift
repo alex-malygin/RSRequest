@@ -15,6 +15,9 @@ enum APIError: Error, LocalizedError {
     case invalidServerResponse
     case invalidURL
     case urlRequestError
+    case resourceUnavailable
+    case unauthorized
+    case statusCode(Int)
         
 
     var errorDescription: String? {
@@ -31,6 +34,12 @@ enum APIError: Error, LocalizedError {
             return "Invalid URL"
         case .urlRequestError:
             return "Error with url request"
+        case .resourceUnavailable:
+            return "Resource unavailable"
+        case .unauthorized:
+            return "Unauthorized"
+        case .statusCode(let code):
+            return "Request failed with status code \(code)"
         }
     }
 }
